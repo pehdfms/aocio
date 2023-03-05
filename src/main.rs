@@ -2,7 +2,7 @@ use std::{error::Error, path::PathBuf, str::FromStr};
 
 use aocinput::{
     common::{day::AocDay, session::Session, year::AocYear},
-    domain::fetcher::{cache::FileCache, InputFetcher},
+    domain::fetcher::{cache::FileCache, HandleCacheHitStrategy, InputFetcher},
 };
 use clap::{command, Parser, Subcommand, ValueHint::DirPath};
 
@@ -70,7 +70,15 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }),
             );
 
-            dbg!(fetcher.get_input(year, day).unwrap());
+            let handle_cache_hit = if overwrite_file {
+                HandleCacheHitStrategy::OverwriteCache
+            } else {
+                HandleCacheHitStrategy::ErrorOnCacheHit
+            };
+
+            dbg!(fetcher
+                .get_input_handle_cache(year, day, handle_cache_hit)
+                .unwrap());
 
             Ok(())
         }

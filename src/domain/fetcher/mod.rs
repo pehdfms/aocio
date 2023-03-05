@@ -31,22 +31,40 @@ impl InputFetcher<MemoryCache> {
     }
 }
 
+pub enum HandleCacheHitStrategy {
+    ReturnCache,
+    OverwriteCache,
+    ErrorOnCacheHit,
+}
+
 impl<C: Cache> InputFetcher<C> {
     #[must_use]
     pub const fn with_cache(session: Session, cache: C) -> Self {
         Self { session, cache }
     }
 
-    pub fn get_input(&mut self, year: AocYear, day: AocDay) -> Result<String, reqwest::Error> {
-        self.cache.read(year, day).map_or_else(
-            || {
-                let input = self.fetch(year, day)?;
-                self.cache.write(year, day, &input).unwrap();
+    pub fn get_input_handle_cache(
+        &mut self,
+        year: AocYear,
+        day: AocDay,
+        handle_cache_hit: HandleCacheHitStrategy,
+    ) -> Result<String, reqwest::Error> {
+        if let Some(cache) = self.cache.read(year, day) {
+            match handle_cache_hit {
+                HandleCacheHitStrategy::ReturnCache => return Ok(cache),
+                HandleCacheHitStrategy::OverwriteCache => (),
+                HandleCacheHitStrategy::ErrorOnCacheHit => todo!(),
+            }
+        }
 
-                Ok(input)
-            },
-            Ok,
-        )
+        let input = self.fetch(year, day)?;
+        self.cache.write(year, day, &input).unwrap();
+
+        Ok(input)
+    }
+
+    pub fn get_input(&mut self, year: AocYear, day: AocDay) -> Result<String, reqwest::Error> {
+        self.get_input_handle_cache(year, day, HandleCacheHitStrategy::ReturnCache)
     }
 
     fn fetch(&self, year: AocYear, day: AocDay) -> Result<String, reqwest::Error> {
