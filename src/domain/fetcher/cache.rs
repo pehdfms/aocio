@@ -73,19 +73,19 @@ impl Cache for MemoryCache {
     }
 }
 
-type PathFormatter = fn(year: AocYear, day: AocDay) -> PathBuf;
+pub trait PathFormatter = Fn(AocYear, AocDay) -> PathBuf;
 
-pub struct FileCache {
-    path_formatter: PathFormatter,
+pub struct FileCache<F: PathFormatter> {
+    path_formatter: F,
 }
 
-impl FileCache {
-    pub const fn new(path_formatter: PathFormatter) -> Self {
+impl<F: PathFormatter> FileCache<F> {
+    pub const fn new(path_formatter: F) -> Self {
         Self { path_formatter }
     }
 }
 
-impl Cache for FileCache {
+impl<F: PathFormatter> Cache for FileCache<F> {
     type WriteCacheError = io::Error;
 
     fn read(&self, year: AocYear, day: AocDay) -> Option<String> {

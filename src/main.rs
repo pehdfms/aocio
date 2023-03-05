@@ -4,7 +4,7 @@ use aocinput::{
     common::{day::AocDay, session::Session, year::AocYear},
     domain::fetcher::{cache::FileCache, InputFetcher},
 };
-use clap::{command, Parser, Subcommand, ValueHint::FilePath};
+use clap::{command, Parser, Subcommand, ValueHint::DirPath};
 
 #[derive(Debug, Parser)]
 #[command(name = "aocinput", long_about = None)]
@@ -30,10 +30,10 @@ enum Commands {
         #[arg(short, long, value_parser = AocDay::from_str)]
         day: AocDay,
 
-        /// File to download the input file to, including path and filename
-        /// (default: ./day{day}.txt)
-        #[arg(short = 'l', long, value_hint = FilePath)]
-        download_location: Option<PathBuf>,
+        /// Directory to download file to
+        /// (default: ./)
+        #[arg(short = 'l', long, value_hint = DirPath)]
+        download_directory: Option<PathBuf>,
 
         /// If unset then the download will fail in case a file we want to create already exists, otherwise we overwrite it
         #[arg(short, long)]
@@ -49,25 +49,28 @@ fn main() -> Result<(), Box<dyn Error>> {
             session,
             year,
             day,
-            download_location,
+            download_directory,
             overwrite_file,
         } => {
-            let download_location = download_location
-                .unwrap_or(PathBuf::from(format!("./day{}.txt", usize::from(day))));
+            let download_directory = download_directory.unwrap_or(PathBuf::from("."));
 
             println!(
                 "Downloading AoC input for {year} Day {day} to {}",
-                download_location
+                download_directory
                     .to_str()
-                    .expect("download location should be a valid path")
+                    .expect("download directory should be a valid path")
             );
 
             let mut fetcher = InputFetcher::with_cache(
                 session,
-                FileCache::new(|year, day| PathBuf::from(format!("day{day}.txt"))),
+                FileCache::new(|_, day| {
+                    download_directory
+                        .join(PathBuf::from(format!("day{day}.txt")))
+                        .to_path_buf()
+                }),
             );
 
-            dbg!(fetcher.get_input(year, day));
+            dbg!(fetcher.get_input(year, day).unwrap());
 
             Ok(())
         }
