@@ -118,9 +118,9 @@ fn main() -> Result<(), Box<dyn Error>> {
 
             let mut fetcher = InputFetcher::with_cache(
                 session,
-                FileCache::new(|year, day| {
+                FileCache::new(|_, day| {
                     download_directory
-                        .join(PathBuf::from(format!("{year}/day{day}.txt")))
+                        .join(PathBuf::from(format!("day{day}.txt")))
                         .to_path_buf()
                 }),
             );
