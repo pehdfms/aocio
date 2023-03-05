@@ -2,7 +2,7 @@ use std::{error::Error, path::PathBuf, str::FromStr};
 
 use aocinput::{
     common::{day::AocDay, session::Session, year::AocYear},
-    domain::fetcher::{FileConflictStrategy, InputFetcher},
+    domain::fetcher::InputFetcher,
 };
 use clap::{command, Parser, Subcommand, ValueHint::FilePath};
 
@@ -62,8 +62,8 @@ fn main() -> Result<(), Box<dyn Error>> {
                     .expect("download location should be a valid path")
             );
 
-            InputFetcher::with_cache(session, overwrite_file, download_location, false)
-                .fetch(year, day)?;
+            let mut fetcher = InputFetcher::new(session);
+            dbg!(fetcher.get_input(year, day));
 
             Ok(())
         }
