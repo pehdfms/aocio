@@ -31,6 +31,7 @@ impl InputFetcher<MemoryCache> {
     }
 }
 
+#[derive(Clone, Copy)]
 pub enum HandleCacheHitStrategy {
     ReturnCache,
     OverwriteCache,
