@@ -1,13 +1,13 @@
 use std::{error::Error, path::PathBuf, str::FromStr};
 
-use aocinput::{
+use aocio::{
     common::{day::AocDay, session::Session, year::AocYear},
     domain::fetcher::{cache::FileCache, HandleCacheHitStrategy, InputFetcher},
 };
 use clap::{command, Parser, Subcommand, ValueHint::DirPath};
 
 #[derive(Debug, Parser)]
-#[command(name = "aocinput", long_about = None)]
+#[command(name = "aocio", long_about = None)]
 struct Cli {
     #[command(subcommand)]
     command: Commands,
