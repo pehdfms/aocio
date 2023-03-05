@@ -73,7 +73,8 @@ impl Cache for MemoryCache {
     }
 }
 
-pub trait PathFormatter = Fn(AocYear, AocDay) -> PathBuf;
+pub trait PathFormatter: Fn(AocYear, AocDay) -> PathBuf {}
+impl<F: Fn(AocYear, AocDay) -> PathBuf> PathFormatter for F {}
 
 pub struct FileCache<F: PathFormatter> {
     path_formatter: F,
