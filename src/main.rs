@@ -33,7 +33,7 @@ enum Commands {
 
         /// If unset then the download will fail in case a file we want to create already exists, otherwise we overwrite it
         #[arg(short, long)]
-        overwrite_file: bool,
+        overwrite_files: bool,
     },
 
     /// Fetch Advent of Code input file
@@ -105,7 +105,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             session,
             year,
             download_directory,
-            overwrite_file,
+            overwrite_files,
         } => {
             let download_directory = download_directory.unwrap_or(PathBuf::from("."));
 
@@ -125,7 +125,7 @@ fn main() -> Result<(), Box<dyn Error>> {
                 }),
             );
 
-            let handle_cache_hit = if overwrite_file {
+            let handle_cache_hit = if overwrite_files {
                 HandleCacheHitStrategy::OverwriteCache
             } else {
                 HandleCacheHitStrategy::ErrorOnCacheHit
