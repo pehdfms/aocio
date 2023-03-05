@@ -1,4 +1,4 @@
-use std::{collections::HashMap, convert::Infallible, error};
+use std::{collections::HashMap, convert::Infallible, error, fs, io, path::PathBuf};
 
 use thiserror::Error;
 
@@ -21,43 +21,31 @@ pub struct NoCache;
 impl Cache for NoCache {
     type WriteCacheError = Infallible;
 
-    fn read(&self, year: AocYear, day: AocDay) -> Option<String> {
+    fn read(&self, _: AocYear, __: AocDay) -> Option<String> {
         None
     }
 
-    fn write(
-        &mut self,
-        year: AocYear,
-        day: AocDay,
-        input: &str,
-    ) -> Result<(), Self::WriteCacheError> {
+    fn write(&mut self, _: AocYear, __: AocDay, ___: &str) -> Result<(), Self::WriteCacheError> {
         Ok(())
     }
 }
 
 impl NoCache {
-    pub fn new() -> Self {
+    #[must_use]
+    pub const fn new() -> Self {
         Self {}
     }
 }
 
-pub enum WriteConflictStrategy {
-    Overwrite,
-    Error,
-    Skip,
-}
-
+#[derive(Default)]
 pub struct MemoryCache {
-    handle_conflict: WriteConflictStrategy,
     cache_map: HashMap<(AocYear, AocDay), String>,
 }
 
 impl MemoryCache {
-    pub fn new(handle_conflict: WriteConflictStrategy) -> Self {
-        Self {
-            handle_conflict,
-            cache_map: HashMap::default(),
-        }
+    #[must_use]
+    pub fn new() -> Self {
+        Self::default()
     }
 }
 
@@ -71,7 +59,7 @@ impl Cache for MemoryCache {
     type WriteCacheError = MemoryWriteCacheError;
 
     fn read(&self, year: AocYear, day: AocDay) -> Option<String> {
-        self.cache_map.get(&(year, day)).map(|s| s.to_string())
+        self.cache_map.get(&(year, day)).map(ToString::to_string)
     }
 
     fn write(
@@ -80,17 +68,43 @@ impl Cache for MemoryCache {
         day: AocDay,
         input: &str,
     ) -> Result<(), Self::WriteCacheError> {
-        if self.cache_map.contains_key(&(year, day)) {
-            match self.handle_conflict {
-                WriteConflictStrategy::Overwrite => (),
-                WriteConflictStrategy::Error => {
-                    return Err(MemoryWriteCacheError::AlreadyExists(year, day))
-                }
-                WriteConflictStrategy::Skip => return Ok(()),
-            }
-        }
-
         self.cache_map.insert((year, day), input.to_string());
         Ok(())
+    }
+}
+
+type PathFormatter = fn(year: AocYear, day: AocDay) -> PathBuf;
+
+pub struct FileCache {
+    path_formatter: PathFormatter,
+}
+
+impl FileCache {
+    pub const fn new(path_formatter: PathFormatter) -> Self {
+        Self { path_formatter }
+    }
+}
+
+impl Cache for FileCache {
+    type WriteCacheError = io::Error;
+
+    fn read(&self, year: AocYear, day: AocDay) -> Option<String> {
+        let path = (self.path_formatter)(year, day);
+        fs::read_to_string(path).ok()
+    }
+
+    fn write(
+        &mut self,
+        year: AocYear,
+        day: AocDay,
+        input: &str,
+    ) -> Result<(), Self::WriteCacheError> {
+        let path = (self.path_formatter)(year, day);
+
+        if let Some(directory) = &path.parent() {
+            fs::create_dir_all(directory)?;
+        }
+
+        fs::write(path, input)
     }
 }

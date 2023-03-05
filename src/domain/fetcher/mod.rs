@@ -2,7 +2,7 @@ use reqwest::{blocking::Client, header::COOKIE};
 
 use crate::common::{day::AocDay, session::Session, year::AocYear};
 
-use self::cache::{Cache, MemoryCache, NoCache, WriteConflictStrategy};
+use self::cache::{Cache, MemoryCache, NoCache};
 
 pub mod cache;
 
@@ -12,7 +12,8 @@ pub struct InputFetcher<C: Cache> {
 }
 
 impl InputFetcher<NoCache> {
-    pub fn new(session: Session) -> Self {
+    #[must_use]
+    pub const fn new(session: Session) -> Self {
         Self {
             session,
             cache: NoCache::new(),
@@ -21,26 +22,31 @@ impl InputFetcher<NoCache> {
 }
 
 impl InputFetcher<MemoryCache> {
-    pub fn with_memory_cache(session: Session, handle_conflict: WriteConflictStrategy) -> Self {
+    #[must_use]
+    pub fn with_memory_cache(session: Session) -> Self {
         Self {
             session,
-            cache: MemoryCache::new(handle_conflict),
+            cache: MemoryCache::new(),
         }
     }
 }
 
 impl<C: Cache> InputFetcher<C> {
-    pub fn with_cache(session: Session, cache: C) -> Self {
+    #[must_use]
+    pub const fn with_cache(session: Session, cache: C) -> Self {
         Self { session, cache }
     }
 
     pub fn get_input(&mut self, year: AocYear, day: AocDay) -> Result<String, reqwest::Error> {
-        self.cache.read(year, day).map(Ok).unwrap_or_else(|| {
-            let input = self.fetch(year, day)?;
-            self.cache.write(year, day, &input).unwrap();
+        self.cache.read(year, day).map_or_else(
+            || {
+                let input = self.fetch(year, day)?;
+                self.cache.write(year, day, &input).unwrap();
 
-            Ok(input)
-        })
+                Ok(input)
+            },
+            Ok,
+        )
     }
 
     fn fetch(&self, year: AocYear, day: AocDay) -> Result<String, reqwest::Error> {

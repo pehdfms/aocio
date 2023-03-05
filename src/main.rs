@@ -2,7 +2,7 @@ use std::{error::Error, path::PathBuf, str::FromStr};
 
 use aocinput::{
     common::{day::AocDay, session::Session, year::AocYear},
-    domain::fetcher::InputFetcher,
+    domain::fetcher::{cache::FileCache, InputFetcher},
 };
 use clap::{command, Parser, Subcommand, ValueHint::FilePath};
 
@@ -62,7 +62,11 @@ fn main() -> Result<(), Box<dyn Error>> {
                     .expect("download location should be a valid path")
             );
 
-            let mut fetcher = InputFetcher::new(session);
+            let mut fetcher = InputFetcher::with_cache(
+                session,
+                FileCache::new(|year, day| PathBuf::from(format!("day{day}.txt"))),
+            );
+
             dbg!(fetcher.get_input(year, day));
 
             Ok(())
