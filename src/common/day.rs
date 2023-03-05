@@ -40,3 +40,21 @@ impl FromStr for AocDay {
         Ok(Self(day))
     }
 }
+
+#[derive(Error, Debug)]
+pub enum ParseAocDayFromNumberError {
+    #[error("Advent of Code Day should be between 1 and 25 inclusive, but got {0}")]
+    OutOfRange(String),
+}
+
+impl TryFrom<usize> for AocDay {
+    type Error = ParseAocDayFromNumberError;
+
+    fn try_from(value: usize) -> Result<Self, Self::Error> {
+        if !(1..=25).contains(&value) {
+            return Err(ParseAocDayFromNumberError::OutOfRange(value.to_string()));
+        }
+
+        Ok(Self(value))
+    }
+}
