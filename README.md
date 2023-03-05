@@ -22,7 +22,9 @@ And now you are ready to use the `aocio` 🎉
 ## Usage
 
 ```bash
-aocio fetch -y 2022 -d 1 -s "your-session-token-here" # Saves Advent of Code input for Day 1 2022 to ./day1.txt
+aocio fetch -y 2022 -d 1 -s "your-session-token-here" --overwrite-file # Saves Advent of Code input for Day 1 2022 to ./day1.txt and overwrites file if it already exists
 
 aocio fetch -y 2015 -d 5 -s "your-session-token-here" -l "aoc/2015/" # Saves input for Day 5 2015 to ./aoc/2015/day5.txt
+
+aocio fetch-year -y 2017 -s "your-session-token-here" -l "aoc/2017/" # Saves all 2017 inputs to ./aoc/2017/day{day}.txt
 ```
