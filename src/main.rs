@@ -26,15 +26,17 @@ enum Commands {
         #[arg(short, long, value_parser = AocYear::from_str)]
         year: AocYear,
 
-        /// (Optional) Day you want to fetch, if unset will download the entire year
+        /// (Optional)
+        /// Day you want to fetch, if unset will download the entire year
         #[arg(short, long, value_parser = AocDay::from_str)]
         day: Option<AocDay>,
 
-        /// Directory to download file to
         /// (default: ./)
+        /// Directory to download file to
         #[arg(short = 'l', long, value_hint = DirPath)]
         download_directory: Option<PathBuf>,
 
+        /// (Optional)
         /// If unset then the download will fail in case a file we want to create already exists, otherwise we overwrite it
         #[arg(short, long)]
         overwrite_files: bool,
