@@ -32,8 +32,8 @@ impl FromStr for AocPart {
         })?;
 
         match day {
-            1 => Ok(AocPart::Part1),
-            2 => Ok(AocPart::Part2),
+            1 => Ok(Self::Part1),
+            2 => Ok(Self::Part2),
             _ => Err(ParseAocPartError::NotAPart(s.to_string())),
         }
     }

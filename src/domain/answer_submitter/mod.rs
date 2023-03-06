@@ -29,7 +29,8 @@ pub enum SubmissionError {
 }
 
 impl SubmissionError {
-    pub fn from_response_text(text: &str) -> Option<SubmissionError> {
+    #[must_use]
+    pub fn from_response_text(text: &str) -> Option<Self> {
         if text.contains("That's the right answer!") {
             return None;
         }
@@ -54,18 +55,19 @@ impl SubmissionError {
             }
         }
 
-        return Some(Self::Unknown(text.to_string()));
+        Some(Self::Unknown(text.to_string()))
     }
 }
 
 impl From<reqwest::Error> for SubmissionError {
     fn from(_: reqwest::Error) -> Self {
-        SubmissionError::RequestError
+        Self::RequestError
     }
 }
 
 impl AnswerSubmitter {
-    pub fn new(session: Session) -> Self {
+    #[must_use]
+    pub const fn new(session: Session) -> Self {
         Self { session }
     }
 
@@ -91,6 +93,6 @@ impl AnswerSubmitter {
             .send()?
             .text()?;
 
-        SubmissionError::from_response_text(&result).map_or(Ok(()), |err| Err(err))
+        SubmissionError::from_response_text(&result).map_or(Ok(()), Err)
     }
 }

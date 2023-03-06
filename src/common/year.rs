@@ -10,6 +10,7 @@ use super::day::AocDay;
 pub struct AocYear(u32);
 
 impl AocYear {
+    #[must_use]
     pub fn get_days() -> Vec<AocDay> {
         (1..=25)
             .map(|day| {

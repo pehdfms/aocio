@@ -3,7 +3,7 @@ use std::{error::Error, path::PathBuf, str::FromStr};
 use aocio::{
     common::{day::AocDay, part::AocPart, session::Session, year::AocYear},
     domain::{
-        answer_submitter::{self, AnswerSubmitter},
+        answer_submitter::AnswerSubmitter,
         fetcher::{cache::FileCache, HandleCacheHitStrategy, InputFetcher},
     },
 };
@@ -16,6 +16,7 @@ struct Cli {
     command: Commands,
 }
 
+// TODO syntax could be better, I'm relying too much on Args
 #[derive(Debug, Subcommand)]
 enum Commands {
     /// Submit Solution for Advent of Code Part
