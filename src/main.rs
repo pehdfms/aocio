@@ -1,8 +1,11 @@
 use std::{error::Error, path::PathBuf, str::FromStr};
 
 use aocio::{
-    common::{day::AocDay, session::Session, year::AocYear},
-    domain::fetcher::{cache::FileCache, HandleCacheHitStrategy, InputFetcher},
+    common::{day::AocDay, part::AocPart, session::Session, year::AocYear},
+    domain::{
+        answer_submitter::{self, AnswerSubmitter},
+        fetcher::{cache::FileCache, HandleCacheHitStrategy, InputFetcher},
+    },
 };
 use clap::{command, Parser, Subcommand, ValueHint::DirPath};
 
@@ -15,6 +18,29 @@ struct Cli {
 
 #[derive(Debug, Subcommand)]
 enum Commands {
+    /// Submit Solution for Advent of Code Part
+    #[command(arg_required_else_help = true)]
+    Submit {
+        /// AoC Session Token
+        #[arg(short, long, value_parser = Session::from_str)]
+        session: Session,
+
+        /// Year you want to solve
+        #[arg(short, long, value_parser = AocYear::from_str)]
+        year: AocYear,
+
+        /// Day you want to solve
+        #[arg(short, long, value_parser = AocDay::from_str)]
+        day: AocDay,
+
+        /// Part you want to solve
+        #[arg(short, long, value_parser = AocPart::from_str)]
+        part: AocPart,
+
+        /// Answer
+        #[arg(short, long)]
+        answer: String,
+    },
     /// Fetch Advent of Code input file
     #[command(arg_required_else_help = true)]
     Fetch {
@@ -82,6 +108,18 @@ fn main() -> Result<(), Box<dyn Error>> {
 
                 fetcher.get_input_handle_cache(year, day, handle_cache_hit)?;
             }
+
+            Ok(())
+        }
+        Commands::Submit {
+            session,
+            year,
+            day,
+            part,
+            answer,
+        } => {
+            let answer_submitter = AnswerSubmitter::new(session);
+            answer_submitter.submit(year, day, part, &answer)?;
 
             Ok(())
         }
