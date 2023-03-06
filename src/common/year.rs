@@ -3,9 +3,22 @@ use std::{num::ParseIntError, str::FromStr};
 use derive_more::Display;
 use thiserror::Error;
 
+use super::day::AocDay;
+
 #[derive(Debug, PartialEq, Eq, PartialOrd, Ord, Clone, Copy, Hash, Display)]
 #[display(fmt = "{_0}")]
 pub struct AocYear(u32);
+
+impl AocYear {
+    pub fn get_days() -> Vec<AocDay> {
+        (1..=25)
+            .map(|day| {
+                day.try_into()
+                    .expect("Hardcoded day range is valid for AocDays")
+            })
+            .collect()
+    }
+}
 
 #[derive(Error, Debug)]
 pub enum ParseAocYearError {
