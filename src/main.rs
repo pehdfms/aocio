@@ -90,7 +90,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             };
 
             let mut fetcher = InputFetcher::with_cache(
-                session,
+                &session,
                 FileCache::new(|_, day| {
                     download_directory
                         .join(PathBuf::from(format!("day{day}.txt")))
@@ -119,7 +119,7 @@ fn main() -> Result<(), Box<dyn Error>> {
             part,
             answer,
         } => {
-            let answer_submitter = AnswerSubmitter::new(session);
+            let answer_submitter = AnswerSubmitter::new(&session);
             answer_submitter.submit(year, day, part, &answer)?;
 
             Ok(())

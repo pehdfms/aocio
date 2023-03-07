@@ -6,14 +6,14 @@ use self::cache::{Cache, MemoryCache, NoCache};
 
 pub mod cache;
 
-pub struct InputFetcher<C: Cache> {
-    session: Session,
+pub struct InputFetcher<'a, C: Cache> {
+    session: &'a Session,
     cache: C,
 }
 
-impl InputFetcher<NoCache> {
+impl<'a> InputFetcher<'a, NoCache> {
     #[must_use]
-    pub const fn new(session: Session) -> Self {
+    pub const fn new(session: &'a Session) -> Self {
         Self {
             session,
             cache: NoCache::new(),
@@ -21,9 +21,9 @@ impl InputFetcher<NoCache> {
     }
 }
 
-impl InputFetcher<MemoryCache> {
+impl<'a> InputFetcher<'a, MemoryCache> {
     #[must_use]
-    pub fn with_memory_cache(session: Session) -> Self {
+    pub fn with_memory_cache(session: &'a Session) -> Self {
         Self {
             session,
             cache: MemoryCache::new(),
@@ -38,9 +38,9 @@ pub enum HandleCacheHitStrategy {
     ErrorOnCacheHit,
 }
 
-impl<C: Cache> InputFetcher<C> {
+impl<'a, C: Cache> InputFetcher<'a, C> {
     #[must_use]
-    pub const fn with_cache(session: Session, cache: C) -> Self {
+    pub const fn with_cache(session: &'a Session, cache: C) -> Self {
         Self { session, cache }
     }
 

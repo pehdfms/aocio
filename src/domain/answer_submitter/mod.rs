@@ -6,8 +6,8 @@ use thiserror::Error;
 
 use crate::common::{day::AocDay, part::AocPart, session::Session, year::AocYear};
 
-pub struct AnswerSubmitter {
-    session: Session,
+pub struct AnswerSubmitter<'a> {
+    session: &'a Session,
 }
 
 // TODO add cooldown info
@@ -65,9 +65,9 @@ impl From<reqwest::Error> for SubmissionError {
     }
 }
 
-impl AnswerSubmitter {
+impl<'a> AnswerSubmitter<'a> {
     #[must_use]
-    pub const fn new(session: Session) -> Self {
+    pub const fn new(session: &'a Session) -> Self {
         Self { session }
     }
 
